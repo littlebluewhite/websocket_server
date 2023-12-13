@@ -19,5 +19,6 @@ func receiveAlarmStream(o *Operate, l logFile.LogFile) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	rs := redis_stream.NewStreamRead(o.rdb, "AlarmWebsocket", "server", l)
-	rs.Start(ctx, o.getStreamNodeObjectMap())
+	rs.Start(ctx, o.getStreamAlarmMap())
+
 }

@@ -31,9 +31,9 @@ func (rs *RedisStream) Start(ctx context.Context, streamComMap map[string]func(m
 	}
 	for {
 		rsr, err := rs.ReadGroup(ctx)
-		rs.l.Info().Println("TimeTemplate get stream")
+		rs.l.Info().Println("get stream")
 		if err != nil {
-			rs.l.Error().Println("receiveStream error: ", err)
+			rs.l.Error().Println("receive Stream error: ", err)
 			continue
 		}
 		go func(rsr map[string]interface{}) {
