@@ -2,6 +2,7 @@ package websocket_manager
 
 import (
 	"github.com/gofiber/contrib/websocket"
+	"websocket_server/util/logFile"
 )
 
 type WebsocketManager struct {
@@ -9,6 +10,7 @@ type WebsocketManager struct {
 	register   chan groupConnect
 	unregister chan groupConnect
 	broadcast  chan groupMessage
+	l          logFile.LogFile
 }
 
 func NewWebsocketManager() *WebsocketManager {
@@ -21,6 +23,7 @@ func NewWebsocketManager() *WebsocketManager {
 		register:   make(chan groupConnect),
 		unregister: make(chan groupConnect),
 		broadcast:  make(chan groupMessage),
+		l:          logFile.NewLogFile("websocket", "websocket.log"),
 	}
 }
 
@@ -28,14 +31,18 @@ func (wm *WebsocketManager) Run() {
 	for {
 		select {
 		case gc := <-wm.register:
+			wm.l.Info().Println("register 2: ", gc.group, gc.client)
 			wm.groups[gc.group][gc.client] = struct{}{}
 		case gc := <-wm.unregister:
+			wm.l.Info().Println("unregister 2: ", gc.group, gc.client)
 			delete(wm.groups[gc.group], gc.client)
 			_ = gc.client.Close()
 		case gm := <-wm.broadcast:
+			wm.l.Info().Println("broadcast 2: ", gm.group, string(gm.message))
 			for client := range wm.groups[gm.group] {
 				err := client.WriteMessage(websocket.TextMessage, gm.message)
 				if err != nil {
+					wm.l.Error().Println("send message error: ", err, "group: ", gm.group)
 					delete(wm.groups[gm.group], client)
 					_ = client.Close()
 				}
@@ -45,6 +52,7 @@ func (wm *WebsocketManager) Run() {
 }
 
 func (wm *WebsocketManager) Register(d int, client *websocket.Conn) {
+	wm.l.Info().Println("register 1: ", d, client)
 	wm.register <- groupConnect{
 		group:  Group(d),
 		client: client,
@@ -52,6 +60,7 @@ func (wm *WebsocketManager) Register(d int, client *websocket.Conn) {
 }
 
 func (wm *WebsocketManager) Unregister(d int, client *websocket.Conn) {
+	wm.l.Info().Println("unregister 1: ", d, client)
 	wm.unregister <- groupConnect{
 		group:  Group(d),
 		client: client,
@@ -59,6 +68,7 @@ func (wm *WebsocketManager) Unregister(d int, client *websocket.Conn) {
 }
 
 func (wm *WebsocketManager) Broadcast(d int, message []byte) {
+	wm.l.Info().Println("broadcast 1: ", d, string(message))
 	wm.broadcast <- groupMessage{
 		group:   Group(d),
 		message: message,
