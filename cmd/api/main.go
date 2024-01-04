@@ -56,7 +56,9 @@ func main() {
 	// create websocket manager
 	wm := websocket_manager.NewWebsocketManager()
 	// run websocket manager
-	go wm.Run()
+	go func() {
+		wm.Run()
+	}()
 
 	ServerConfig := config.NewConfig[config.ServerConfig](".", "env", "server")
 

@@ -32,6 +32,7 @@ func (wm *WebsocketManager) Run() {
 		wm.l.Error().Println("websocket manager exit")
 	}()
 	for {
+		wm.l.Info().Println("for start")
 		select {
 		case gc := <-wm.register:
 			wm.l.Info().Println("register 2:", gc.group, gc.client)
@@ -50,6 +51,7 @@ func (wm *WebsocketManager) Run() {
 					_ = client.Close()
 				}
 			}
+			wm.l.Trace().Println("broadcast 2 finish")
 		}
 	}
 }
