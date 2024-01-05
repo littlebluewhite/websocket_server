@@ -50,7 +50,7 @@ func RegisterRouter(g group) {
 				log.Info().Println("read:", err)
 				break
 			}
-			log.Info().Println("send: %s, type: %d", msg, mt)
+			log.Info().Printf("send: %s, type: %d", msg, mt)
 		}
 	}))
 	ws.Get("/alarm", websocket.New(func(c *websocket.Conn) {

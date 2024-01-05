@@ -2,6 +2,7 @@ package websocket_manager
 
 import (
 	"github.com/gofiber/contrib/websocket"
+	"time"
 	"websocket_server/util/logFile"
 )
 
@@ -42,9 +43,12 @@ func (wm *WebsocketManager) Run() {
 			delete(wm.groups[gc.group], gc.client)
 			_ = gc.client.Close()
 		case gm := <-wm.broadcast:
-			wm.l.Info().Println("broadcast 2:", gm.group)
+			wm.l.Info().Println("broadcast 2 start:", gm.group)
+			wm.l.Info().Println("client numbers:", len(wm.groups[gm.group]))
 			for client := range wm.groups[gm.group] {
-				err := client.WriteMessage(websocket.TextMessage, gm.message)
+				wm.l.Info().Println("start sending to client:", client)
+				err := client.WriteControl(websocket.TextMessage, gm.message, time.Now().Add(1*time.Second))
+				wm.l.Info().Println("sent end")
 				if err != nil {
 					wm.l.Error().Println("send message error: ", err, "group: ", gm.group)
 					delete(wm.groups[gm.group], client)
