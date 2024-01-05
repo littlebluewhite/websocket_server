@@ -1,4 +1,4 @@
-# websocket server 1.0.6
+# websocket server 2.0.0
 
 * websocket server
   * 統一 websocket manager 管理
@@ -39,23 +39,23 @@
 
    1. 創建需要的image
       api image:
-      `docker build -t websocket_server:1.0.6 -f deploy/api/windows/Dockerfile .`
+      `docker build -t websocket_server:2.0.0 -f deploy/api/windows/Dockerfile .`
    2. 創建並啟動container
 
       1. run api container
 
-         `docker run --name websocket_server -p 5488:5488 -e DB_HOST=host.docker.internal -v ${PWD}/docker/log:/app/log websocket_server:1.0.6`
+         `docker run --name websocket_server -p 5488:5488 -e DB_HOST=host.docker.internal -v ${PWD}/docker/log:/app/log websocket_server:2.0.0`
 2. ##### Linux系統
 
    1. 創建需要的image
       api image:
-      `docker build -t websocket_server:1.0.6 -f deploy/api/linux/Dockerfile .`
+      `docker build -t websocket_server:2.0.0 -f deploy/api/linux/Dockerfile .`
 
    2. 創建並啟動container
 
       1. run api container
-         `docker run --name websocket_server -p 5488:5488 --network="host" -v ${PWD}/docker/log:/app/log websocket_server:1.0.6 -e TZ=Asia/Taipei`
-         `docker run --name websocket_server -p 5488:5488 -e TZ=Asia/Taipei -e INFLUXDB_HOST=192.168.1.11 -e REDIS_HOST=192.168.1.11 -v ${PWD}/docker/log:/app/log websocket_server:1.0.6`
+         `docker run --name websocket_server -p 5488:5488 --network="host" -v ${PWD}/docker/log:/app/log websocket_server:2.0.0 -e TZ=Asia/Taipei`
+         `docker run --name websocket_server -p 5488:5488 -e TZ=Asia/Taipei -e INFLUXDB_HOST=192.168.1.11 -e REDIS_HOST=192.168.1.11 -v ${PWD}/docker/log:/app/log websocket_server:2.0.0`
 
 # Log File
 

@@ -11,8 +11,12 @@ import (
 func RegisterRouter(g group) {
 	log := logFile.NewLogFile("router", "websocket.log")
 	app := g.GetApp()
-	wm := g.GetWebsocketManager()
-	o := NewOperate(g.GetDbs(), wm)
+
+	hm := g.GetWebsocketHub()
+	hm.RegisterHub("node_object")
+	hm.RegisterHub("alarm")
+
+	o := NewOperate(g.GetDbs(), hm)
 
 	go func() {
 		receiveNodeObjectStream(o, log)
@@ -31,44 +35,15 @@ func RegisterRouter(g group) {
 	})
 
 	ws.Get("/node_object", websocket.New(func(c *websocket.Conn) {
-		wm.Register(1, c)
-		defer func() {
-			wm.Unregister(1, c)
-		}()
-		//log.Info().Println(c.Locals("allowed"))
-		//log.Info().Println(c.Params("id"))
-		//log.Info().Println(c.Query("v"))
-		//log.Info().Println(c.NetConn())
-		//log.Info().Println(c.Cookies("session"))
-		var (
-			mt  int
-			msg []byte
-			err error
-		)
-		for {
-			if mt, msg, err = c.ReadMessage(); err != nil {
-				log.Info().Println("read:", err)
-				break
-			}
-			log.Info().Printf("send: %s, type: %d", msg, mt)
+		err := hm.WsConnect("node_object", c)
+		if err != nil {
+			log.Error().Println(err)
 		}
 	}))
 	ws.Get("/alarm", websocket.New(func(c *websocket.Conn) {
-		wm.Register(2, c)
-		defer func() {
-			wm.Unregister(2, c)
-		}()
-		var (
-			mt  int
-			msg []byte
-			err error
-		)
-		for {
-			if mt, msg, err = c.ReadMessage(); err != nil {
-				log.Info().Println("read:", err)
-				break
-			}
-			log.Info().Println("send: %s, type: %d", msg, mt)
+		err := hm.WsConnect("alarm", c)
+		if err != nil {
+			log.Error().Println(err)
 		}
 	}))
 }
@@ -76,5 +51,5 @@ func RegisterRouter(g group) {
 type group interface {
 	GetApp() fiber.Router
 	GetDbs() dbs.Dbs
-	GetWebsocketManager() api.WebsocketManager
+	GetWebsocketHub() api.HubManager
 }

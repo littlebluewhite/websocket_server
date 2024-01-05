@@ -9,14 +9,14 @@ import (
 type Group struct {
 	app fiber.Router
 	dbs dbs.Dbs
-	wm  api.WebsocketManager
+	hm  api.HubManager
 }
 
-func NewAPIGroup(app fiber.Router, dbs dbs.Dbs, wm api.WebsocketManager) *Group {
+func NewAPIGroup(app fiber.Router, dbs dbs.Dbs, hm api.HubManager) *Group {
 	return &Group{
 		app: app,
 		dbs: dbs,
-		wm:  wm,
+		hm:  hm,
 	}
 }
 
@@ -28,6 +28,6 @@ func (g *Group) GetDbs() dbs.Dbs {
 	return g.dbs
 }
 
-func (g *Group) GetWebsocketManager() api.WebsocketManager {
-	return g.wm
+func (g *Group) GetWebsocketHub() api.HubManager {
+	return g.hm
 }

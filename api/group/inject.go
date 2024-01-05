@@ -13,7 +13,7 @@ import (
 	"websocket_server/util/logFile"
 )
 
-func Inject(app *fiber.App, dbs dbs.Dbs, wm api.WebsocketManager) {
+func Inject(app *fiber.App, dbs dbs.Dbs, wm api.HubManager) {
 	// Middleware
 	log := logFile.NewLogFile("api", "inject.log")
 	fiberLog := getFiberLogFile(log)

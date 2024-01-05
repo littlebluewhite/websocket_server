@@ -10,7 +10,7 @@ import (
 	"time"
 	"websocket_server/api/group"
 	"websocket_server/app/dbs"
-	"websocket_server/app/websocket_manager"
+	"websocket_server/app/websocket_hub"
 	"websocket_server/util/config"
 	"websocket_server/util/logFile"
 )
@@ -54,11 +54,7 @@ func main() {
 	}()
 
 	// create websocket manager
-	wm := websocket_manager.NewWebsocketManager()
-	// run websocket manager
-	go func() {
-		wm.Run()
-	}()
+	hm := websocket_hub.NewHubManager()
 
 	ServerConfig := config.NewConfig[config.ServerConfig](".", "env", "server")
 
@@ -76,7 +72,7 @@ func main() {
 		},
 	)
 
-	group.Inject(apiServer, DBS, wm)
+	group.Inject(apiServer, DBS, hm)
 
 	// for api server shout down gracefully
 	serverShutdown := make(chan struct{})
