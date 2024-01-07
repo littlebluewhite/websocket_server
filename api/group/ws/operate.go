@@ -4,10 +4,11 @@ import (
 	"github.com/patrickmn/go-cache"
 	"github.com/redis/go-redis/v9"
 	"websocket_server/app/dbs"
+	"websocket_server/entry/e_module"
 )
 
 type hubManager interface {
-	Broadcast(model string, message []byte)
+	Broadcast(module e_module.Module, message []byte)
 }
 
 type Operate struct {
@@ -40,12 +41,12 @@ func (o *Operate) getStreamAlarmMap() map[string]func(rsc map[string]interface{}
 
 func (o *Operate) streamNodeObjectBroadcast(rsc map[string]interface{}) (result string, err error) {
 	d := []byte(rsc["data"].(string))
-	o.hm.Broadcast("node_object", d)
+	o.hm.Broadcast(e_module.NodeObject, d)
 	return
 }
 
 func (o *Operate) streamAlarmBroadcast(rsc map[string]interface{}) (result string, err error) {
 	d := []byte(rsc["data"].(string))
-	o.hm.Broadcast("alarm", d)
+	o.hm.Broadcast(e_module.Alarm, d)
 	return
 }

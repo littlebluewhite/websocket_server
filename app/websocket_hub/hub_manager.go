@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gofiber/contrib/websocket"
+	"websocket_server/entry/e_module"
 	"websocket_server/util/logFile"
 )
 
@@ -14,31 +15,31 @@ type hub interface {
 }
 
 type HubManager struct {
-	hubs map[string]hub
+	hubs map[e_module.Module]hub
 	l    logFile.LogFile
 }
 
 func NewHubManager() *HubManager {
 	return &HubManager{
-		hubs: make(map[string]hub),
+		hubs: make(map[e_module.Module]hub),
 		l:    logFile.NewLogFile("websocket", "hub_manager.log"),
 	}
 }
 
-func (hm *HubManager) RegisterHub(model string) {
-	h := NewHub(model)
-	hm.hubs[model] = h
+func (hm *HubManager) RegisterHub(module e_module.Module) {
+	h := NewHub(module)
+	hm.hubs[module] = h
 	go h.Run()
 }
 
-func (hm *HubManager) Broadcast(model string, msg []byte) {
-	hm.l.Info().Printf("model: %s broadcast: %s", model, msg)
-	hm.hubs[model].Broadcast(msg)
+func (hm *HubManager) Broadcast(module e_module.Module, msg []byte) {
+	hm.l.Info().Printf("module: %s broadcast: %s", module, msg)
+	hm.hubs[module].Broadcast(msg)
 }
 
-func (hm *HubManager) WsConnect(model string, conn *websocket.Conn) error {
-	if h, ok := hm.hubs[model]; !ok {
-		eString := fmt.Sprintf("model %s not exist", model)
+func (hm *HubManager) WsConnect(module e_module.Module, conn *websocket.Conn) error {
+	if h, ok := hm.hubs[module]; !ok {
+		eString := fmt.Sprintf("module %s not exist", module)
 		hm.l.Error().Println(eString)
 		return errors.New(eString)
 	} else {

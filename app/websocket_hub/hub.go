@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gofiber/contrib/websocket"
+	"websocket_server/entry/e_module"
 	"websocket_server/util/logFile"
 )
 
@@ -15,8 +16,8 @@ type Hub struct {
 	l              logFile.LogFile
 }
 
-func NewHub(model string) *Hub {
-	name := fmt.Sprintf("%s_hub.log", model)
+func NewHub(module e_module.Module) *Hub {
+	name := fmt.Sprintf("%s_hub.log", module)
 	return &Hub{
 		clients:        make(map[*client]struct{}),
 		registerChan:   make(chan *client),

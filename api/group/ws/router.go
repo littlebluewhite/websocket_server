@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"websocket_server/api"
 	"websocket_server/app/dbs"
+	"websocket_server/entry/e_module"
 	"websocket_server/util/logFile"
 )
 
@@ -13,8 +14,8 @@ func RegisterRouter(g group) {
 	app := g.GetApp()
 
 	hm := g.GetWebsocketHub()
-	hm.RegisterHub("node_object")
-	hm.RegisterHub("alarm")
+	hm.RegisterHub(e_module.NodeObject)
+	hm.RegisterHub(e_module.Alarm)
 
 	o := NewOperate(g.GetDbs(), hm)
 
@@ -35,13 +36,13 @@ func RegisterRouter(g group) {
 	})
 
 	ws.Get("/node_object", websocket.New(func(c *websocket.Conn) {
-		err := hm.WsConnect("node_object", c)
+		err := hm.WsConnect(e_module.NodeObject, c)
 		if err != nil {
 			log.Error().Println(err)
 		}
 	}))
 	ws.Get("/alarm", websocket.New(func(c *websocket.Conn) {
-		err := hm.WsConnect("alarm", c)
+		err := hm.WsConnect(e_module.Alarm, c)
 		if err != nil {
 			log.Error().Println(err)
 		}
