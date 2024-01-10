@@ -13,7 +13,7 @@ type hubManager interface {
 
 type Operate struct {
 	cache *cache.Cache
-	rdb   *redis.Client
+	rdb   redis.UniversalClient
 	hm    hubManager
 }
 

@@ -1,7 +1,14 @@
+# Websocket manager  version 2.1.0
+
+### redis add cluster connection
+---------------------------------------------------------
+
+
 # Websocket manager  version 2.0.1
 
 ### use module type to replace model string
 ---------------------------------------------------------
+
 
 # Websocket manager  version 2.0.0
 
