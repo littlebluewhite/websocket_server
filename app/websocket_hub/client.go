@@ -68,7 +68,6 @@ func (c *client) writePump(ctx context.Context) {
 
 func (c *client) close() {
 	_ = c.conn.Close()
-	close(c.box)
 }
 
 func (c *client) send(msg []byte) {
