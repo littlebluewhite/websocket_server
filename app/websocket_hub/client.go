@@ -40,6 +40,7 @@ func (c *client) writePump(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case msg, ok := <-c.box:
+			c.l.Info().Printf("client: %v send 2 start", c.conn)
 			if !ok {
 				_ = c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
@@ -62,6 +63,7 @@ func (c *client) writePump(ctx context.Context) {
 				c.l.Error().Println("w.close err:", err)
 				return
 			}
+			c.l.Info().Printf("client: %v send 2 end", c.conn)
 		}
 	}
 }
@@ -71,5 +73,6 @@ func (c *client) close() {
 }
 
 func (c *client) send(msg []byte) {
+	c.l.Info().Printf("client: %v send 1", c.conn)
 	c.box <- msg
 }

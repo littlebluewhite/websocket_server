@@ -37,6 +37,7 @@ func (h *Hub) Run() {
 				delete(h.clients, cli)
 			}
 		case msg := <-h.broadcast:
+			h.l.Info().Printf("broadcast 2")
 			for cli := range h.clients {
 				go func(cli *client) {
 					cli.send(msg)
@@ -55,7 +56,7 @@ func (h *Hub) unRegister(cli *client) {
 }
 
 func (h *Hub) Broadcast(msg []byte) {
-	h.l.Info().Printf("broadcast: %s", msg)
+	h.l.Info().Printf("broadcast 1")
 	h.broadcast <- msg
 }
 
