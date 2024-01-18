@@ -38,7 +38,9 @@ func (h *Hub) Run() {
 			}
 		case msg := <-h.broadcast:
 			for cli := range h.clients {
-				cli.send(msg)
+				go func(cli *client) {
+					cli.send(msg)
+				}(cli)
 			}
 		}
 	}
