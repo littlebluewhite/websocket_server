@@ -1,4 +1,4 @@
-# Websocket manager  version 2.1.0
+# Websocket manager  version 2.1.1
 
 ### redis add cluster connection
 ---------------------------------------------------------

@@ -63,6 +63,7 @@ func (h *Hub) WsConnect(conn *websocket.Conn) {
 	defer func() {
 		h.unRegister(cli)
 		cancel()
+		cli.close()
 	}()
 	h.register(cli)
 	go cli.writePump(ctx)

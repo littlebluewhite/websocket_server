@@ -21,9 +21,6 @@ func newClient(conn *websocket.Conn, log logFile.LogFile) *client {
 }
 
 func (c *client) readPump() {
-	defer func() {
-		c.close()
-	}()
 	for {
 		if _, msg, err := c.conn.ReadMessage(); err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
