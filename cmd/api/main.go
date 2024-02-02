@@ -5,6 +5,8 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"os/signal"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -16,13 +18,16 @@ import (
 )
 
 var (
-	mainLog logFile.LogFile
+	mainLog  logFile.LogFile
+	rootPath string
 )
 
 // 初始化配置
 func init() {
 	// log配置
 	mainLog = logFile.NewLogFile("", "main.log")
+	_, b, _, _ := runtime.Caller(0)
+	rootPath = filepath.Dir(filepath.Dir(filepath.Dir(b)))
 }
 
 // @title           Schedule-Task-Command swagger API
@@ -46,8 +51,11 @@ func main() {
 
 	mainLog.Info().Println("command module start")
 
+	// read config
+	Config := config.NewConfig[config.Config](rootPath, "config", "config", config.Yaml)
+
 	// DBs start includes SQL Cache
-	DBS := dbs.NewDbs(mainLog)
+	DBS := dbs.NewDbs(mainLog, Config.Conn)
 	defer func() {
 		DBS.GetIdb().Close()
 		mainLog.Info().Println("influxDB Disconnect")
@@ -56,16 +64,16 @@ func main() {
 	// create websocket manager
 	hm := websocket_hub.NewHubManager()
 
-	ServerConfig := config.NewConfig[config.ServerConfig](".", "env", "server")
+	serverConfig := Config.Server
 
 	var sb strings.Builder
 	sb.WriteString(":")
-	sb.WriteString(ServerConfig.Port)
+	sb.WriteString(serverConfig.Port)
 	//addr := sb.String()
 	apiServer := fiber.New(
 		fiber.Config{
-			ReadTimeout:  ServerConfig.ReadTimeout * time.Minute,
-			WriteTimeout: ServerConfig.WriteTimeout * time.Minute,
+			ReadTimeout:  serverConfig.ReadTimeout * time.Minute,
+			WriteTimeout: serverConfig.WriteTimeout * time.Minute,
 			AppName:      "websocket_server",
 			JSONEncoder:  json.Marshal,
 			JSONDecoder:  json.Unmarshal,

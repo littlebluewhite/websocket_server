@@ -1,4 +1,12 @@
-# Websocket manager  version 2.1.7
+# Websocket manager  version 2.2.0
+
+### General
+- config file update
+- util config function update
+---------------------------------------------------------
+
+
+# Websocket manager  version 2.2.0
 
 ### redis add cluster connection 
 ---------------------------------------------------------
