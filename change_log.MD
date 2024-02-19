@@ -1,12 +1,13 @@
-# Websocket manager  version 2.2.0
+# Websocket manager  version 2.2.1
 
 ### General
 - config file update
 - util config function update
+- golang change to 1.22.0
 ---------------------------------------------------------
 
 
-# Websocket manager  version 2.2.0
+# Websocket manager  version 2.1.7
 
 ### redis add cluster connection 
 ---------------------------------------------------------
