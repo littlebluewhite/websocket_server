@@ -1,9 +1,10 @@
-# Websocket manager  version 2.2.1
+# Websocket manager  version 2.2.2
 
 ### General
 - config file update
 - util config function update
 - golang change to 1.22.0
+- go-redis update
 ---------------------------------------------------------
 
 
