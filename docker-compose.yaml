@@ -32,13 +32,14 @@ services:
       dockerfile: deploy/api/linux/Dockerfile
 #      dockerfile: deploy/api/windows/Dockerfile
     environment:
-      INFLUXDB_HOST: influxdb
-      INFLUXDB_ORG: my-org
-      INFLUXDB_BUCKET: websocket_server
-      INFLUXDB_TOKEN: my-super-influxdb-auth-token
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_DB: 1
+      CONN_INFLUXDB_HOST: influxdb
+      CONN_INFLUXDB_ORG: my-org
+      CONN_INFLUXDB_TOKEN: my-super-influxdb-auth-token
+      CONN_INFLUXDB_BUCKET: websocket_server
+      CONN_REDIS_HOST: redis
+      CONN_REDIS_PORT: 6379
+      CONN_REDIS_IS_CLUSTER: False
+      CONN_REDIS_DB: 15
 
     ports:
       - 5488:5488
