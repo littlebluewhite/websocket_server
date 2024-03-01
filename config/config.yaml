@@ -11,21 +11,22 @@ conn:
     port: 3306
     user: root
     password: 123456
-    db: schedule
+    db: websocket_server
   influxdb:
     host: 127.0.0.1
     port: 8086
     org: my-org
     token: my-super-influxdb-auth-token
-    bucket: schedule
+    bucket: websocket_server
   testSQL:
     host: 127.0.0.1
     port: 3306
     user: root
     password: 123456
-    db: schedule_test
+    db: websocket_server_test
 
 server:
-  port: 5488
-  rear_timeout: 300  # s
-  write_timeout: 300  # s
+  websocket_server:
+    port: 5488
+    rear_timeout: 300  # s
+    write_timeout: 300  # s

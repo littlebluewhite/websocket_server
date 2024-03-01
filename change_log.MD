@@ -1,4 +1,4 @@
-# Websocket manager  version 2.2.5
+# Websocket manager  version 2.2.6
 
 ### General
 - config file update

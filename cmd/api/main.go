@@ -30,8 +30,8 @@ func init() {
 	rootPath = filepath.Dir(filepath.Dir(filepath.Dir(b)))
 }
 
-// @title           Schedule-Task-Command swagger API
-// @version         2.7.11
+// @title           Websocket_Server swagger API
+// @version         2.2.6
 // @description     This is a websocket server.
 // @termsOfService  http://swagger.io/terms/
 
@@ -68,12 +68,12 @@ func main() {
 
 	var sb strings.Builder
 	sb.WriteString(":")
-	sb.WriteString(serverConfig.Port)
+	sb.WriteString(serverConfig.WebsocketServer.Port)
 	//addr := sb.String()
 	apiServer := fiber.New(
 		fiber.Config{
-			ReadTimeout:  serverConfig.ReadTimeout * time.Minute,
-			WriteTimeout: serverConfig.WriteTimeout * time.Minute,
+			ReadTimeout:  serverConfig.WebsocketServer.ReadTimeout * time.Minute,
+			WriteTimeout: serverConfig.WebsocketServer.WriteTimeout * time.Minute,
 			AppName:      "websocket_server",
 			JSONEncoder:  json.Marshal,
 			JSONDecoder:  json.Unmarshal,

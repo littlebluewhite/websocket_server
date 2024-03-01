@@ -22,10 +22,14 @@ type SQLConfig struct {
 	DB       string `mapstructure:"db"`
 }
 
-type ServerConfig struct {
+type WebsocketServerConfig struct {
 	Port         string        `mapstructure:"port"`
 	ReadTimeout  time.Duration `mapstructure:"read_timeout"`
 	WriteTimeout time.Duration `mapstructure:"write_timeout"`
+}
+
+type ServerConfig struct {
+	WebsocketServer WebsocketServerConfig `mapstructure:"websocket_server"`
 }
 
 type RedisConfig struct {
