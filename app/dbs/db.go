@@ -32,7 +32,7 @@ type dbs struct {
 	Idb   HistoryDB
 }
 
-func NewDbs(log logFile.LogFile, config config.ConnConfig) Dbs {
+func NewDbs(log logFile.LogFile, config config.Config) Dbs {
 	d := &dbs{}
 	d.initCache()
 	d.initRdb(log, config.Redis)

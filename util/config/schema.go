@@ -3,15 +3,11 @@ package config
 import "time"
 
 type Config struct {
-	Conn   ConnConfig   `mapstructure:"conn"`
-	Server ServerConfig `mapstructure:"server"`
-}
-
-type ConnConfig struct {
 	Redis    RedisConfig    `mapstructure:"redis"`
 	SQL      SQLConfig      `mapstructure:"SQL"`
 	Influxdb InfluxdbConfig `mapstructure:"influxdb"`
 	TestSQL  SQLConfig      `mapstructure:"testSQL"`
+	Server   ServerConfig   `mapstructure:"server"`
 }
 
 type SQLConfig struct {
@@ -22,14 +18,10 @@ type SQLConfig struct {
 	DB       string `mapstructure:"db"`
 }
 
-type WebsocketServerConfig struct {
+type ServerConfig struct {
 	Port         string        `mapstructure:"port"`
 	ReadTimeout  time.Duration `mapstructure:"read_timeout"`
 	WriteTimeout time.Duration `mapstructure:"write_timeout"`
-}
-
-type ServerConfig struct {
-	WebsocketServer WebsocketServerConfig `mapstructure:"websocket_server"`
 }
 
 type RedisConfig struct {

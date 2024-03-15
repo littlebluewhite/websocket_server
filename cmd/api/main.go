@@ -31,7 +31,7 @@ func init() {
 }
 
 // @title           Websocket_Server swagger API
-// @version         2.2.6
+// @version         2.2.7
 // @description     This is a websocket server.
 // @termsOfService  http://swagger.io/terms/
 
@@ -55,7 +55,7 @@ func main() {
 	Config := config.NewConfig[config.Config](rootPath, "config", "config", config.Yaml)
 
 	// DBs start includes SQL Cache
-	DBS := dbs.NewDbs(mainLog, Config.Conn)
+	DBS := dbs.NewDbs(mainLog, Config)
 	defer func() {
 		DBS.GetIdb().Close()
 		mainLog.Info().Println("influxDB Disconnect")
@@ -68,12 +68,12 @@ func main() {
 
 	var sb strings.Builder
 	sb.WriteString(":")
-	sb.WriteString(serverConfig.WebsocketServer.Port)
+	sb.WriteString(serverConfig.Port)
 	//addr := sb.String()
 	apiServer := fiber.New(
 		fiber.Config{
-			ReadTimeout:  serverConfig.WebsocketServer.ReadTimeout * time.Minute,
-			WriteTimeout: serverConfig.WebsocketServer.WriteTimeout * time.Minute,
+			ReadTimeout:  serverConfig.ReadTimeout * time.Minute,
+			WriteTimeout: serverConfig.WriteTimeout * time.Minute,
 			AppName:      "websocket_server",
 			JSONEncoder:  json.Marshal,
 			JSONDecoder:  json.Unmarshal,
