@@ -31,7 +31,7 @@ func init() {
 }
 
 // @title           Websocket_Server swagger API
-// @version         2.2.7
+// @version         2.2.8
 // @description     This is a websocket server.
 // @termsOfService  http://swagger.io/terms/
 
@@ -48,8 +48,6 @@ func main() {
 	// Create context that listens for the interrupt signal from the OS.
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
-
-	mainLog.Info().Println("command module start")
 
 	// read config
 	Config := config.NewConfig[config.Config](rootPath, "config", "config", config.Yaml)
