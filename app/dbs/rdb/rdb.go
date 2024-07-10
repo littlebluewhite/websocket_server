@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/redis/go-redis/v9"
+	"strings"
 	"websocket_server/util/config"
 )
 
-func newRedis(redisConfig config.RedisConfig) *redis.Client {
+func newSingleRedis(redisConfig config.RedisConfig, hostPort [][]string) *redis.Client {
 	dsn := fmt.Sprintf("redis://%s:%s@%s:%s/%s",
-		redisConfig.User, redisConfig.Password, redisConfig.Host, redisConfig.Port, redisConfig.DB)
+		redisConfig.User, redisConfig.Password, hostPort[0][0], hostPort[0][1], redisConfig.DB)
 	opt, err := redis.ParseURL(dsn)
 	if err != nil {
 		panic(err)
@@ -23,9 +24,11 @@ func newRedis(redisConfig config.RedisConfig) *redis.Client {
 	return rdb
 }
 
-func newClusterRedis(redisConfig config.RedisConfig) *redis.ClusterClient {
-	address := make([]string, 0, 1)
-	address = append(address, fmt.Sprintf("%s:%s", redisConfig.Host, redisConfig.Port))
+func newClusterRedis(redisConfig config.RedisConfig, hostPort [][]string) *redis.ClusterClient {
+	address := make([]string, 0, len(hostPort))
+	for _, v := range hostPort {
+		address = append(address, fmt.Sprintf("%s:%s", v[0], v[1]))
+	}
 	rdb := redis.NewClusterClient(&redis.ClusterOptions{
 		Addrs:    address,
 		Username: redisConfig.User,
@@ -40,8 +43,13 @@ func newClusterRedis(redisConfig config.RedisConfig) *redis.ClusterClient {
 }
 
 func NewClient(config config.RedisConfig) redis.UniversalClient {
-	if config.IsCluster {
-		return newClusterRedis(config)
+	host := strings.Split(config.Host, ",")
+	hostPort := make([][]string, 0, len(host))
+	for _, v := range host {
+		hostPort = append(hostPort, strings.Split(strings.Trim(v, " "), ":"))
 	}
-	return newRedis(config)
+	if len(host) == 1 {
+		return newSingleRedis(config, hostPort)
+	}
+	return newClusterRedis(config, hostPort)
 }
