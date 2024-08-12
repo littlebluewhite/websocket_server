@@ -55,7 +55,8 @@ func (rs *RedisStream) Start(ctx context.Context, streamComMap map[string]func(m
 }
 
 func (rs *RedisStream) streamInit(ctx context.Context) (err error) {
-	if e := rs.rdb.XInfoGroups(ctx, rs.streamName).Err(); e != nil {
+	r, e := rs.rdb.XInfoGroups(ctx, rs.streamName).Result()
+	if e != nil || len(r) == 0 {
 		err = rs.rdb.XGroupCreateMkStream(ctx, rs.streamName, rs.groupName, "0").Err()
 		if err != nil {
 			return
