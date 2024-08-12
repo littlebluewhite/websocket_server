@@ -2,6 +2,7 @@ package redis_stream
 
 import (
 	"context"
+	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
 	"websocket_server/util/logFile"
@@ -55,17 +56,7 @@ func (rs *RedisStream) Start(ctx context.Context, streamComMap map[string]func(m
 
 func (rs *RedisStream) streamInit(ctx context.Context) (err error) {
 	if e := rs.rdb.XInfoGroups(ctx, rs.streamName).Err(); e != nil {
-		r, _ := rs.rdb.XAdd(ctx, &redis.XAddArgs{
-			Stream: rs.streamName,
-			Values: map[string]interface{}{
-				"message": "initial",
-			},
-		}).Result()
-		err = rs.rdb.XGroupCreate(ctx, rs.streamName, rs.groupName, r).Err()
-		if err != nil {
-			return
-		}
-		err = rs.rdb.XDel(ctx, rs.streamName, r).Err()
+		err = rs.rdb.XGroupCreateMkStream(ctx, rs.streamName, rs.groupName, "0").Err()
 		if err != nil {
 			return
 		}
@@ -86,7 +77,18 @@ func (rs *RedisStream) ReadGroup(ctx context.Context) (
 	if err != nil {
 		return
 	}
-	rsr = re[0].Messages[0].Values
+	if len(re) == 0 || len(re[0].Messages) == 0 {
+		err = fmt.Errorf("no messages found")
+		return
+	}
+
+	message := re[0].Messages[0]
+	rsr = message.Values
+
+	err = rs.rdb.XDel(ctx, rs.streamName, message.ID).Err()
+	if err != nil {
+		return
+	}
 	return
 }
 
