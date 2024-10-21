@@ -1,21 +1,21 @@
-package redis_stream
+package deal_redis
 
 import (
 	"context"
 	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
-	"websocket_server/util/logFile"
+	"websocket_server/api"
 )
 
 type RedisStream struct {
 	rdb        redis.UniversalClient
 	streamName string
 	groupName  string
-	l          logFile.LogFile
+	l          api.Logger
 }
 
-func NewStreamRead(rdb redis.UniversalClient, streamName string, groupName string, l logFile.LogFile) *RedisStream {
+func NewStreamRead(rdb redis.UniversalClient, streamName string, groupName string, l api.Logger) *RedisStream {
 	return &RedisStream{
 		rdb:        rdb,
 		streamName: streamName,
@@ -24,33 +24,22 @@ func NewStreamRead(rdb redis.UniversalClient, streamName string, groupName strin
 	}
 }
 
-func (rs *RedisStream) Start(ctx context.Context, streamComMap map[string]func(map[string]interface{}) (string, error)) {
+func (rs *RedisStream) Start(ctx context.Context, comMap map[string]func(map[string]interface{}) (string, error)) {
 	err := rs.streamInit(ctx)
 	if err != nil {
-		rs.l.Error().Println("receiveStream error: ", err)
+		rs.l.Errorln("receiveStream error: ", err)
 		return
 	}
 	for {
-		rsr, err := rs.ReadGroup(ctx)
-		rs.l.Info().Println("get stream")
+		connectionPayload, err := rs.ReadGroup(ctx)
+		rs.l.Infoln("get stream")
 		if err != nil {
-			rs.l.Error().Println("receive Stream error: ", err)
+			rs.l.Errorln("receive Stream error: ", err)
 			continue
 		}
-		go func(rsr map[string]interface{}) {
-			streamCom := streamComMap[rsr["command"].(string)]
-			result, err := streamCom(rsr)
-			if err != nil {
-				rs.l.Error().Println("deal stream error: ", err)
-			}
-			if rsr["is_wait_call_back"].(string) == "1" {
-				err = rs.CallBack(ctx, rsr, result, err)
-				if err != nil {
-					rs.l.Error().Println("call back publish error: ", err)
-				}
-				rs.l.Info().Println("return callback success")
-			}
-		}(rsr)
+		go func(connectionPayload map[string]interface{}) {
+			connectionBaseExecute(ctx, rs.rdb, comMap, connectionPayload, rs.l)
+		}(connectionPayload)
 	}
 }
 
@@ -93,15 +82,15 @@ func (rs *RedisStream) ReadGroup(ctx context.Context) (
 	return
 }
 
-func (rs *RedisStream) CallBack(ctx context.Context, rsr map[string]interface{}, result string, err error) error {
+func (rs *RedisStream) CallBack(ctx context.Context, callBackChannel string, result string, err error) error {
+	connectionPayload := make(map[string]interface{})
 	if err != nil {
-		rsr["data"] = err.Error()
-		rsr["status_code"] = "422"
+		connectionPayload["data"] = err.Error()
+		connectionPayload["status_code"] = "422"
 	} else {
-		rsr["data"] = result
+		connectionPayload["data"] = result
 	}
-	channel := rsr["callback_channel"].(string)
-	cb, _ := json.Marshal(rsr)
-	err = rs.rdb.Publish(ctx, channel, cb).Err()
+	cb, _ := json.Marshal(connectionPayload)
+	err = rs.rdb.Publish(ctx, callBackChannel, cb).Err()
 	return err
 }

@@ -5,16 +5,16 @@ import (
 	"github.com/patrickmn/go-cache"
 	"github.com/redis/go-redis/v9"
 	"time"
+	api2 "websocket_server/api"
 	"websocket_server/app/dbs/influxdb"
 	"websocket_server/app/dbs/rdb"
 	"websocket_server/util/config"
-	"websocket_server/util/logFile"
 )
 
 type Dbs interface {
 	initCache()
-	initRdb(log logFile.LogFile, config config.RedisConfig)
-	initIdb(log logFile.LogFile, Config config.InfluxdbConfig)
+	initRdb(log api2.Logger, config config.RedisConfig)
+	initIdb(log api2.Logger, Config config.InfluxdbConfig)
 	GetCache() *cache.Cache
 	GetRdb() redis.UniversalClient
 	GetIdb() HistoryDB
@@ -32,7 +32,7 @@ type dbs struct {
 	Idb   HistoryDB
 }
 
-func NewDbs(log logFile.LogFile, config config.Config) Dbs {
+func NewDbs(log api2.Logger, config config.Config) Dbs {
 	d := &dbs{}
 	d.initCache()
 	d.initRdb(log, config.Redis)
@@ -44,14 +44,14 @@ func (d *dbs) initCache() {
 	d.Cache = cache.New(5*time.Minute, 10*time.Minute)
 }
 
-func (d *dbs) initRdb(log logFile.LogFile, Config config.RedisConfig) {
+func (d *dbs) initRdb(log api2.Logger, Config config.RedisConfig) {
 	d.Rdb = rdb.NewClient(Config)
-	log.Info().Println("Redis Connection successful")
+	log.Infoln("Redis Connection successful")
 }
 
-func (d *dbs) initIdb(log logFile.LogFile, Config config.InfluxdbConfig) {
+func (d *dbs) initIdb(log api2.Logger, Config config.InfluxdbConfig) {
 	d.Idb = influxdb.NewInfluxdb(Config)
-	log.Info().Println("InfluxDB Connection successful")
+	log.Infoln("InfluxDB Connection successful")
 }
 
 func (d *dbs) GetCache() *cache.Cache {

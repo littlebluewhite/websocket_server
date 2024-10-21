@@ -10,12 +10,12 @@ import (
 	"websocket_server/api"
 	"websocket_server/api/group/ws"
 	"websocket_server/app/dbs"
-	"websocket_server/util/logFile"
+	"websocket_server/util/my_log"
 )
 
 func Inject(app *fiber.App, dbs dbs.Dbs, wm api.HubManager) {
 	// Middleware
-	log := logFile.NewLogFile("api", "inject.log")
+	log := my_log.NewLog("api/inject")
 	fiberLog := getFiberLogFile(log)
 	app.Use(recover.New())
 	app.Use(logger.New(logger.Config{
@@ -32,10 +32,10 @@ func Inject(app *fiber.App, dbs dbs.Dbs, wm api.HubManager) {
 	ws.RegisterRouter(g)
 }
 
-func getFiberLogFile(log logFile.LogFile) io.Writer {
+func getFiberLogFile(log api.Logger) io.Writer {
 	fiberFile, err := os.OpenFile("./log/fiber.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
-		log.Error().Fatal("can not open log file: " + err.Error())
+		log.Errorln("can not open log file: " + err.Error())
 	}
 	return io.MultiWriter(fiberFile, os.Stdout)
 }

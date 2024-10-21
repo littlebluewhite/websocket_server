@@ -5,8 +5,6 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"os/signal"
-	"path/filepath"
-	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -14,21 +12,8 @@ import (
 	"websocket_server/app/dbs"
 	"websocket_server/app/websocket_hub"
 	"websocket_server/util/config"
-	"websocket_server/util/logFile"
+	"websocket_server/util/my_log"
 )
-
-var (
-	mainLog  logFile.LogFile
-	rootPath string
-)
-
-// 初始化配置
-func init() {
-	// log配置
-	mainLog = logFile.NewLogFile("", "main.log")
-	_, b, _, _ := runtime.Caller(0)
-	rootPath = filepath.Dir(filepath.Dir(filepath.Dir(b)))
-}
 
 // @title           Websocket_Server swagger API
 // @version         2.2.8
@@ -45,18 +30,19 @@ func init() {
 // @host      127.0.0.1:5488
 
 func main() {
+	mainLog := my_log.NewLog("main")
 	// Create context that listens for the interrupt signal from the OS.
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	// read config
-	Config := config.NewConfig[config.Config](rootPath, "config", "config", config.Yaml)
+	Config := config.NewConfig[config.Config]("./config", "config", config.Yaml)
 
 	// DBs start includes SQL Cache
 	DBS := dbs.NewDbs(mainLog, Config)
 	defer func() {
 		DBS.GetIdb().Close()
-		mainLog.Info().Println("influxDB Disconnect")
+		mainLog.Infoln("influxDB Disconnect")
 	}()
 
 	// create websocket manager
@@ -84,13 +70,13 @@ func main() {
 	serverShutdown := make(chan struct{})
 	go func() {
 		_ = <-ctx.Done()
-		mainLog.Info().Println("Gracefully shutting down api server")
+		mainLog.Infoln("Gracefully shutting down api server")
 		_ = apiServer.Shutdown()
 		serverShutdown <- struct{}{}
 	}()
 
 	if err := apiServer.Listen(":5488"); err != nil {
-		mainLog.Error().Fatalf("listen: %s\n", err)
+		mainLog.Errorf("listen: %s\n", err)
 	}
 
 	// Listen for the interrupt signal.
@@ -99,6 +85,6 @@ func main() {
 	// Restore default behavior on the interrupt signal and notify user of shutdown.
 	stop()
 	time.Sleep(1 * time.Second)
-	mainLog.Info().Println("Server exiting")
+	mainLog.Infoln("Server exiting")
 
 }

@@ -6,11 +6,11 @@ import (
 	"websocket_server/api"
 	"websocket_server/app/dbs"
 	"websocket_server/entry/e_module"
-	"websocket_server/util/logFile"
+	"websocket_server/util/my_log"
 )
 
 func RegisterRouter(g group) {
-	log := logFile.NewLogFile("router", "websocket.log")
+	l := my_log.NewLog("router/websocket")
 	app := g.GetApp()
 
 	hm := g.GetWebsocketHub()
@@ -20,10 +20,16 @@ func RegisterRouter(g group) {
 	o := NewOperate(g.GetDbs(), hm)
 
 	go func() {
-		receiveNodeObjectStream(o, log)
+		receiveNodeObjectStream(o, l)
 	}()
 	go func() {
-		receiveAlarmStream(o, log)
+		receiveAlarmStream(o, l)
+	}()
+	go func() {
+		subscribeNodeObject(o, l)
+	}()
+	go func() {
+		subscribeAlarm(o, l)
 	}()
 
 	ws := app.Group("/ws")
@@ -38,13 +44,13 @@ func RegisterRouter(g group) {
 	ws.Get("/node_object", websocket.New(func(c *websocket.Conn) {
 		err := hm.WsConnect(e_module.NodeObject, c)
 		if err != nil {
-			log.Error().Println(err)
+			l.Errorln(err)
 		}
 	}))
 	ws.Get("/alarm", websocket.New(func(c *websocket.Conn) {
 		err := hm.WsConnect(e_module.Alarm, c)
 		if err != nil {
-			log.Error().Println(err)
+			l.Errorln(err)
 		}
 	}))
 }

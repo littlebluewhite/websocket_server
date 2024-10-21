@@ -4,8 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gofiber/contrib/websocket"
+	"websocket_server/api"
 	"websocket_server/entry/e_module"
-	"websocket_server/util/logFile"
+	"websocket_server/util/my_log"
 )
 
 type hub interface {
@@ -16,13 +17,13 @@ type hub interface {
 
 type HubManager struct {
 	hubs map[e_module.Module]hub
-	l    logFile.LogFile
+	l    api.Logger
 }
 
 func NewHubManager() *HubManager {
 	return &HubManager{
 		hubs: make(map[e_module.Module]hub),
-		l:    logFile.NewLogFile("websocket", "hub_manager.log"),
+		l:    my_log.NewLog("websocket/hub_manager"),
 	}
 }
 
@@ -33,14 +34,14 @@ func (hm *HubManager) RegisterHub(module e_module.Module) {
 }
 
 func (hm *HubManager) Broadcast(module e_module.Module, msg []byte) {
-	hm.l.Info().Printf("module: %s hub broadcast", module)
+	hm.l.Infof("module: %s hub broadcast", module)
 	hm.hubs[module].Broadcast(msg)
 }
 
 func (hm *HubManager) WsConnect(module e_module.Module, conn *websocket.Conn) error {
 	if h, ok := hm.hubs[module]; !ok {
 		eString := fmt.Sprintf("module %s not exist", module)
-		hm.l.Error().Println(eString)
+		hm.l.Errorln(eString)
 		return errors.New(eString)
 	} else {
 		h.WsConnect(conn)
